@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+set -o errexit
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPTNAME="$(basename "${BASH_SOURCE[0]}")"
+MNAME="C0r3"
+ARCHIVE="${MNAME}.ova"
+ISO="http://tinycorelinux.net/7.x/x86_64/release/CorePure64-7.0.iso"
+BUILDER="virtualbox"
+SSHPORT=7103
+WAIT=5
+
+if [ -r ~/.ssh/id_rsa.pub ]; then
+	PUBKEY=~/.ssh/id_rsa.pub
+fi
+
+function machine_clean { :; }
+
+function clean {
+	machine_clean "${MNAME}"
+	rm -rf "${TMPDIR}"
+}
+TMPDIR="$(mktemp -d)"
+trap clean EXIT
+
+while getopts ":a:b:hi:k:n:p:w:" currentopt; do
+	case "${currentopt}" in
+		a) ARCHIVE="${OPTARG}";;
+		b) BUILDER="${OPTARG}";;
+		h) cat <<- EOS
+			Usage: ${SCRIPTNAME} [options...]
+
+			Generates an archive of a virtual Tiny Core machine
+
+			Options:
+			  -a <archive>   archive file to store the result in
+			                 --> ${ARCHIVE}
+			  -b <builder>   builder to use
+			                 --> ${BUILDER}
+			  -h             print this help and exits
+			  -i <iso>       either an ISO file URL to download or a path to an ISO file
+			                 --> ${ISO}
+			  -k <key>       public ssh key to authorize on the tiny core machine
+			                 --> ${PUBKEY}
+			  -n <name>      name of the machine
+			                 --> ${MNAME}
+			  -p <port>      port to set for SSH daemon to listen on
+			                 --> ${SSHPORT}
+			  -w <seconds>   latency in seconds between console operations operated by the builder
+			                 --> ${WAIT}
+			EOS
+			exit 0;;
+		i) ISO="${OPTARG}";;
+		k) PUBKEY="${OPTARG}";;
+		n) MNAME="${OPTARG}";;
+		p) SSHPORT="${OPTARG}";;
+		w) WAIT="${OPTARG}";;
+		\?) echo "invalid option: -$OPTARG" >&2; exit 1;;
+		:) echo "option -$OPTARG requires an argument" >&2; exit 1;;
+	esac
+done
+
+. "${SCRIPTDIR}/builders/${BUILDER}.sh"
+
+if [ -e "${ARCHIVE}" ]; then
+	echo "${ARCHIVE} already exist" >&2
+	exit 1
+fi
+
+if [ ! -r "${ISO}" ]; then
+	curl -o "${TMPDIR}/core.iso" "${ISO}"
+	ISO="${TMPDIR}/core.iso"
+fi
+
+SSH="ssh -i ${TMPDIR}/key.rsa -p ${SSHPORT} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no tc@127.0.0.1"
+ssh-keygen -f "${TMPDIR}/key.rsa" -b 1024 -N '' > /dev/null
+
+machine_setup "${MNAME}" "${ISO}" "${SSHPORT}"
+sleep "${WAIT}"
+write_console "${MNAME}" << EOS
+
+EOS
+sleep "${WAIT}"
+write_console "${MNAME}" << EOS
+tce-load -wi openssh
+sudo cp /usr/local/etc/ssh/sshd_config_example /usr/local/etc/ssh/sshd_config
+sudo /usr/local/etc/init.d/openssh start
+mkdir -p ~/.ssh
+cat > ~/.ssh/authorized_keys << EOF
+$(cat "${TMPDIR}/key.rsa.pub")
+EOF
+chmod -R go-rwxs ~/.ssh
+EOS
+
+until ${SSH} 'true'; do sleep 1; done
+
+${SSH} 'cat > hdsetup.sh' << EOF
+set -o errexit
+sudo fdisk /dev/sda << EOS
+n
+p
+1
+
+
+t
+83
+w
+EOS
+sudo mkfs.ext3 /dev/sda1
+sudo rebuildfstab
+mount /mnt/sda1
+mount /mnt/sr0
+sudo mkdir -p /mnt/sda1/boot/grub
+sudo cp -p /mnt/sr0/boot/* /mnt/sda1/boot/ || true
+sudo mkdir -p /mnt/sda1/tce
+tce-load -wi grub2-multi
+sudo cp -p /usr/local/lib/grub/x86_64-efi/* /mnt/sda1/boot/grub/
+sudo mv /mnt/sda1/boot/vmlinuz64 /mnt/sda1/boot/vmlinuz-64-core-7.0
+sudo mv /mnt/sda1/boot/corepure64.gz /mnt/sda1/boot/initrd-64-core-7.0.gz
+for i in bin dev etc lib proc run sbin sys tmp usr var; do sudo mkdir /mnt/sda1/\$i; sudo mount --bind /\$i /mnt/sda1/\$i; done
+for i in /tmp/tcloop/*; do sudo mount --bind \$i /mnt/sda1\$i; done
+sudo chroot /mnt/sda1 /usr/local/sbin/grub-install /dev/sda
+sudo chroot /mnt/sda1 /usr/local/sbin/grub-mkconfig -o /boot/grub/grub.cfg
+for i in /mnt/sda1/tmp/tcloop/*; do sudo umount \$i; done
+for i in bin dev etc lib proc run sbin sys tmp usr var; do sudo umount /mnt/sda1/\$i; sudo rmdir /mnt/sda1/\$i; done
+cat << EOS | sudo tee -a /opt/.filetool.lst
+/etc/shadow
+/usr/local/etc/ssh
+EOS
+cat << EOS | sudo tee -a /opt/bootsync.sh
+/usr/local/etc/init.d/openssh start
+EOS
+sudo tar cf - -C /tmp/tce . | sudo tar xf - -C /mnt/sda1/tce
+EOF
+
+${SSH} '. ./hdsetup.sh && rm hdsetup.sh'
+
+if [ -n "${PUBKEY}" ]; then
+	if [ -r "${PUBKEY}" ]; then
+		cat "${PUBKEY}" | ${SSH} "cat > key.pub"
+		${SSH} 'cp key.pub .ssh/authorized_keys && rm key.pub && filetool.sh -b /dev/sda1/tce; sudo poweroff' || true
+	else
+		echo "cannot read ${PUBKEY}" >&2
+		exit 1
+	fi
+else
+	${SSH} 'rm .ssh/authorized_keys && filetool.sh -b /dev/sda1/tce; sudo poweroff' || true
+fi
+
+
+machine_finalize "${MNAME}" "${ARCHIVE}"
