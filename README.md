@@ -1,6 +1,6 @@
 # Virtual Tiny Core
 
-![VTC logo](img/vtc.svg =200x100)
+![VTC logo](img/vtc.svg)
 
 VTC provides a way to create [Tiny Core](http://tinycorelinux.net/) images for virtual environments.
 

@@ -5,11 +5,39 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    id="svg2"
-   viewBox="0 0 836.70831 458.51613"
-   height="129.40344mm"
-   width="236.13768mm">
+   viewBox="0 0 167.34166 91.703223"
+   height="25.880688mm"
+   width="47.227535mm"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="vtc.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1256"
+     inkscape:window-height="861"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="1"
+     inkscape:cx="-95.829166"
+     inkscape:cy="45.851607"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <defs
      id="defs4" />
   <metadata
@@ -25,7 +53,7 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(-79.90358,-554.85368)"
+     transform="matrix(0.2,0,0,0.2,-15.980716,-110.97074)"
      id="layer1">
     <ellipse
        transform="scale(1,-1)"
@@ -46,18 +74,22 @@
     <path
        id="path4136"
        d="m 239.40616,855.38245 267.69042,63.63962 c 0,0 -173.74624,-268.70058 -69.70053,-266.68028"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
     <path
        id="path4138"
        d="m 548.51283,897.80886 c 0,0 -113.13708,-180.81731 -89.90357,-282.84271"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
     <path
        id="path4140"
        d="m 342.93436,564.94993 c 79.38973,72.3296 242.45623,55.67909 270.7405,5.17146"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
     <path
        id="path4142"
        d="M 666.70068,662.44332 C 357.594,587.69203 606.09153,972.56016 760.64487,861.44338"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
